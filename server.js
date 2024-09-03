@@ -52,10 +52,12 @@ app.put('/users/:id', async (req, res) => {
     if (status !== undefined) {
       user.status = status;
 
-      // If activating the user, set trial_end_date to 30 days from today
+      // If activating the user, set trial_end_date to 30 days from today at midnight
       if (status) {
         const today = new Date();
-        const newDate = new Date(today.setDate(today.getDate() + 30));
+        const newDate = new Date(today);
+        newDate.setDate(today.getUTCDate() + 30);
+        newDate.setHours(today.getUTCHours(), today.getUTCMinutes(), today.getUTCSeconds()); // Set to midnight
         console.log('New trial end date:', newDate); // Debugging output
         user.trial_end_date = newDate;
       }
@@ -69,6 +71,7 @@ app.put('/users/:id', async (req, res) => {
     res.status(500).json({ message: 'Error updating user', error: err.message });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
